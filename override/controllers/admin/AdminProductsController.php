@@ -264,7 +264,7 @@ class AdminProductsController extends AdminProductsControllerCore
         $query = new DbQuery();
         $query->select('i.id_image')->from('image', 'i');
         $query->leftJoin('image_shop', 'is', 'i.id_image = is.id_image AND is.id_shop = ' . $id_shop);
-        $query->where('i.id_product = ' . $id_product . ' AND i.cover IS NULL');
+        $query->where('i.id_product = ' . $id_product . ' AND (i.cover IS NULL OR i.cover = 0)');
         $images = Db::getInstance()->executeS($query);
 
         foreach ($images as $image) {
@@ -342,7 +342,8 @@ class AdminProductsController extends AdminProductsControllerCore
 
         $query = new DbQuery();
         $query->select('tag.name')->from('tag', 'tag');
-        $query->innerJoin('product_tag', 'pt', 'tag.id_tag = pt.id_tag AND pt.id_product = ' . $id_product . ' AND pt.id_lang = ' . $id_lang);
+        $query->innerJoin('product_tag', 'pt', 'tag.id_tag = pt.id_tag AND pt.id_product = ' . $id_product);
+        $query->where('tag.id_lang = ' . $id_lang);
 
         $tags = array();
         foreach (Db::getInstance()->executeS($query) as $tag) {
