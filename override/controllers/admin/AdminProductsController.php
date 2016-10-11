@@ -97,11 +97,17 @@ class AdminProductsController extends AdminProductsControllerCore
 
         // Short description
         $this->_select .= 'b.`description_short` AS short_description, ';
-        $this->fields_list['short_description'] = array('title' => $this->l('Short description'));
+        $this->fields_list['short_description'] = array(
+            'title' => $this->l('Short description'),
+            'callback' => 'replaceQuote'
+        );
 
         // Description
         $this->_select .= 'b.`description`, ';
-        $this->fields_list['description'] = array('title' => $this->l('Description'));
+        $this->fields_list['description'] = array(
+            'title' => $this->l('Description'),
+            'callback' => 'replaceQuote'
+        );
 
         // Meta title
         $this->_select .= 'b.`meta_title`, ';
@@ -351,6 +357,15 @@ class AdminProductsController extends AdminProductsControllerCore
         }
 
         return implode($delimiter, $tags);
+    }
+
+    public static function replaceQuote($html, $row)
+    {
+        if (empty($row) || empty($row['id_product'])) {
+            return;
+        }
+
+        return str_replace('"', "'", $html);
     }
 
     public static function sortCSVfields(&$fields)
