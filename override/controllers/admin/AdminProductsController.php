@@ -16,12 +16,16 @@ class AdminProductsController extends AdminProductsControllerCore
         /* Columns with callback function */
 
         // Image URLs (x,y,z...)
-        $this->fields_list['image']['title'] = 'Image URLs (x,y,z...)';
-        $this->fields_list['image']['callback'] = 'exportAllImagesLink';
+        $this->fields_list['image'] = array(
+            'title' => $this->l('Image URLs (x,y,z...)'),
+            'callback' => 'exportAllImagesLink'
+        );
 
         // Categories (x,y,z...)
-        $this->fields_list['name_category']['title'] = 'Categories (x,y,z...)';
-        $this->fields_list['name_category']['callback'] = 'exportAllProductCategories';
+        $this->fields_list['name_category'] = array(
+            'title' => $this->l('Categories (x,y,z...)'),
+            'callback' => 'exportAllProductCategories'
+        );
 
         // Features (Name:Value:Position:Customized, ...)
         $this->_select .= 'NULL AS features, ';
