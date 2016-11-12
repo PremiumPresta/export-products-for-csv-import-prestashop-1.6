@@ -24,7 +24,8 @@ class AdminProductsController extends AdminProductsControllerCore
         // Categories (x,y,z...)
         $this->fields_list['name_category'] = array(
             'title' => $this->l('Categories (x,y,z...)'),
-            'callback' => 'exportAllProductCategories'
+            'callback' => 'exportAllProductCategories', // categories name
+                // 'callback' => 'exportAllProductCategoriesId' // categories id
         );
 
         // Features (Name:Value:Position:Customized, ...)
@@ -308,6 +309,34 @@ class AdminProductsController extends AdminProductsControllerCore
         $categories = array($defaultCategory); // the first category is the default one
         foreach (Db::getInstance()->executeS($query) as $category) {
             $categories[] = $category['name'];
+        }
+
+        return implode($delimiter, $categories);
+    }
+
+    public static function exportAllProductCategoriesId($defaultCategory, $row, $delimiter = ',')
+    {
+        if (empty($row) || empty($row['id_product'])) {
+            return;
+        }
+
+        $id_product = (int) $row['id_product'];
+        $id_shop = Context::getContext()->shop->id;
+
+        $query = new DbQuery();
+        $query->select('c.id_category, p.id_category_default')->from('category', 'c');
+        $query->leftJoin('category_shop', 'cs', 'c.id_category = cs.id_category AND cs.id_shop = ' . $id_shop);
+        $query->leftJoin('category_product', 'cp', 'c.id_category = cp.id_category AND cp.id_product = ' . $id_product);
+        $query->leftJoin('product', 'p', 'cp.id_product = p.id_product');
+        $query->where('p.id_category_default != c.id_category');
+
+        $categories = array();
+        foreach (Db::getInstance()->executeS($query) as $category) {
+            if (!count($categories)) {
+                $categories[] = $category['id_category_default']; // the first category is the default one
+            }
+
+            $categories[] = $category['id_category'];
         }
 
         return implode($delimiter, $categories);
