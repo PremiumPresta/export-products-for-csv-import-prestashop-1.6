@@ -9,6 +9,8 @@ class AdminProductsController extends AdminProductsControllerCore
      */
     public function processExport($text_delimiter = '"')
     {
+        $this->_orderBy = 'id_product';
+
         // Reference is Reference #
         $this->_select .= ', a.`reference`, ';
         $this->fields_list['reference']['title'] = 'Reference #';
@@ -25,7 +27,7 @@ class AdminProductsController extends AdminProductsControllerCore
         $this->fields_list['name_category'] = array(
             'title' => $this->l('Categories (x,y,z...)'),
             'callback' => 'exportAllProductCategories', // categories name
-                // 'callback' => 'exportAllProductCategoriesId' // categories id
+            // 'callback' => 'exportAllProductCategoriesId' // categories id
         );
 
         // Features (Name:Value:Position:Customized, ...)
@@ -270,12 +272,11 @@ class AdminProductsController extends AdminProductsControllerCore
 
         $id_product = (int) $row['id_product'];
         $id_shop = Context::getContext()->shop->id;
-        $links = array($cover); // the first link is the cover image
 
         $query = new DbQuery();
         $query->select('i.id_image')->from('image', 'i');
         $query->leftJoin('image_shop', 'is', 'i.id_image = is.id_image AND is.id_shop = ' . $id_shop);
-        $query->where('i.id_product = ' . $id_product . ' AND (i.cover IS NULL OR i.cover = 0)');
+        $query->where('i.id_product = ' . $id_product)->orderBy('i.cover DESC, i.position ASC');
         $images = Db::getInstance()->executeS($query);
 
         foreach ($images as $image) {
@@ -291,9 +292,7 @@ class AdminProductsController extends AdminProductsControllerCore
 
     public static function exportAllProductCategories($defaultCategory, $row, $delimiter = ',')
     {
-        if (empty($row) || empty($row['id_product'])) {
-            return;
-        }
+        if (empty($row) || empty($row['id_product'])) return;
 
         $id_product = (int) $row['id_product'];
         $id_lang = Context::getContext()->language->id;
@@ -316,9 +315,7 @@ class AdminProductsController extends AdminProductsControllerCore
 
     public static function exportAllProductCategoriesId($defaultCategory, $row, $delimiter = ',')
     {
-        if (empty($row) || empty($row['id_product'])) {
-            return;
-        }
+        if (empty($row) || empty($row['id_product'])) return;
 
         $id_product = (int) $row['id_product'];
         $id_shop = Context::getContext()->shop->id;
@@ -344,9 +341,7 @@ class AdminProductsController extends AdminProductsControllerCore
 
     public static function exportFeatures($feature, $row, $delimiter = ',')
     {
-        if (empty($row) || empty($row['id_product'])) {
-            return;
-        }
+        if (empty($row) || empty($row['id_product'])) return;
 
         $id_product = (int) $row['id_product'];
         $id_lang = Context::getContext()->language->id;
@@ -372,9 +367,7 @@ class AdminProductsController extends AdminProductsControllerCore
 
     public static function exportTags($tag, $row, $delimiter = ',')
     {
-        if (empty($row) || empty($row['id_product'])) {
-            return;
-        }
+        if (empty($row) || empty($row['id_product'])) return;
 
         $id_product = (int) $row['id_product'];
         $id_lang = Context::getContext()->language->id;
@@ -394,10 +387,7 @@ class AdminProductsController extends AdminProductsControllerCore
 
     public static function replaceQuote($html, $row)
     {
-        if (empty($row) || empty($row['id_product'])) {
-            return;
-        }
-
+        if (empty($row) || empty($row['id_product'])) return;
         return str_replace('"', "'", $html);
     }
 
